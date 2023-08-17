@@ -4,7 +4,6 @@ import x from "../assets/X.png";
 import o from "../assets/o.png";
 
 const GameBox = ({ onClick, isClicked, value }) => {
-
   const imageSource =
    value !== ""
     ? value === "X"
@@ -27,7 +26,7 @@ const GameBox = ({ onClick, isClicked, value }) => {
       }}
       onClick={onClick}
     >
-      {isClicked && imageSource&& (
+      {imageSource&& (
         <img
           src={imageSource}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
