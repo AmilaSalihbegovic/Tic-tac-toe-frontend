@@ -3,11 +3,7 @@ import {
   Container,
   CssBaseline,
   ThemeProvider,
-  Typography,
-  Button,
-  AlertTitle,
 } from "@mui/material";
-import Alert from "@mui/material/Alert";
 import CustomTheme from "../theme";
 import xo from "../assets/xo.png";
 import axios from "axios";
@@ -17,6 +13,12 @@ import {
   MotionTypography,
   WhiteTypography,
 } from "../components/GameTypography";
+import AlertMessage from "../components/AlertMessage";
+import {
+  JoinGame,
+  OnePlayerGameButton,
+  TwoUserGameButton,
+} from "../components/GameButton";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -199,67 +201,15 @@ const Home = () => {
             text={"Start a new tic tac toe game"}
           ></MotionTypography>
           <WhiteTypography text={"Please choose game mood"}></WhiteTypography>
-          {alert.type === "error" && (
-            <Alert severity="error">
-              <AlertTitle>Error</AlertTitle>
-              {alert.message}
-            </Alert>
-          )}
-          {alert.type === "success" && (
-            <Alert severity="success">
-              <AlertTitle>Success</AlertTitle>
-              {alert.message}
-            </Alert>
-          )}
-          <Button
-            sx={{
-              mt: CustomTheme.spacing(7),
-              ml: "auto",
-              mr: "auto",
-              color: "primary.dark",
-              backgroundColor: "text.secondary",
-              "&:hover": {
-                backgroundColor: "primary.light",
-                opacity: [0.5, 0.9, 0.7],
-              },
-              pl: 2.5,
-              pr: 2.5,
-              pt: 2,
-              pb: 2,
-              fontFamily: "Roboto",
-              fontWeight: "700",
-              letterSpacing: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onClick={() => HandleOnePlayerGame()}
-          >
-            One player game
-          </Button>
-          <Button
-            sx={{
-              mt: CustomTheme.spacing(7),
-              ml: "auto",
-              mr: "auto",
-              color: "primary.dark",
-              backgroundColor: "text.secondary",
-              "&:hover": {
-                backgroundColor: "primary.light",
-                opacity: [0.5, 0.9, 0.7],
-              },
-              p: 2,
-              fontFamily: "Roboto",
-              fontWeight: "700",
-              letterSpacing: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onClick={() => HandleTwoPlayerGame()}
-          >
-            Two players game
-          </Button>
+          <AlertMessage type={alert.type} message={alert.message} />
+          <OnePlayerGameButton
+            HandleOnePlayerGame={HandleOnePlayerGame}
+            text={"One player game"}
+          />
+          <TwoUserGameButton
+            HandleTwoPlayerGame={HandleTwoPlayerGame}
+            text={"Two players game"}
+          />
           <input
             type="text"
             placeholder="Enter Game ID"
@@ -273,32 +223,7 @@ const Home = () => {
               justifyContent: "center",
             }}
           />
-          <Button
-            sx={{
-              mt: CustomTheme.spacing(2),
-              ml: "auto",
-              mr: "auto",
-              color: "primary.dark",
-              backgroundColor: "text.secondary",
-              "&:hover": {
-                backgroundColor: "primary.light",
-                opacity: [0.5, 0.9, 0.7],
-              },
-              pl: 4.5,
-              pr: 4.5,
-              pt: 2,
-              pb: 2,
-              fontFamily: "Roboto",
-              fontWeight: "700",
-              letterSpacing: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onClick={() => JoinTwoPlayerGame()}
-          >
-            Join game &#09; &#8677;
-          </Button>
+          <JoinGame JoinTwoPlayerGame={JoinTwoPlayerGame} text={"Join game"} />
         </Container>
       </ThemeProvider>
     </div>

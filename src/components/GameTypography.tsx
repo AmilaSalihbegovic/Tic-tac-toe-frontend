@@ -110,4 +110,27 @@ const WhiteTypography = ({text})=>{
       </Typography>
     )
 }
-export {GameTypography, HomeTypography, MotionTypography, WhiteTypography}
+const AuthDescriptionTypography = ({title, text})=>{
+  return(
+    <>
+     <Typography
+            variant="h5"
+            align="center"
+            paddingTop={4}
+            fontFamily="Roboto"
+            fontWeight="700"
+          >
+            {title}
+          </Typography>
+          <Typography
+            paragraph
+            align="center"
+            fontFamily="Roboto"
+            fontWeight="500"
+          >
+            {text}
+          </Typography>
+    </>
+  )
+}
+export {GameTypography, HomeTypography, MotionTypography, WhiteTypography, AuthDescriptionTypography}

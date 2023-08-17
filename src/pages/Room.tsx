@@ -1,13 +1,13 @@
 import { ThemeProvider } from "@emotion/react";
-import { Box, Container, CssBaseline, Typography } from "@mui/material";
+import { Container, CssBaseline } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import CustomTheme from "../theme";
 import xo from "../assets/xo.png";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import GameBox from "../components/GameBox";
-import { Alert, AlertTitle } from "@mui/lab";
-import {GameTypography} from "../components/GameTypography";
+import { GameTypography } from "../components/GameTypography";
+import GameHistory from "../components/GameHistory";
+import GameBoard from "../components/GameBoard";
 
 const Room = () => {
   const { id } = useParams();
@@ -26,13 +26,29 @@ const Room = () => {
         );
         setGame(response.data);
         setGameBoard(response.data.board);
-        setMoves(response.data.moves);
-        setStatus(response.data.status);
       } catch (error) {
         console.log(error);
       }
     };
     fetchGameDetails();
+  }, [isClicked]);
+
+  useEffect(() => {
+    const fetchGameHistory = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/game/history/" + `${id}`
+        );
+        if (response.status === 200 && response.data !== null) {
+          const { status, moves } = response.data;
+          setStatus(status);
+          setMoves(moves);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchGameHistory();
   }, [isClicked]);
   const handleClick = async (index) => {
     if (!isClicked.includes(index)) {
@@ -84,10 +100,10 @@ const Room = () => {
         ) {
           const aiRow = response.data[0];
           const aiCol = response.data[1];
-          setIsClicked((prevGame)=>[...prevGame, aiRow*3+aiCol]);
-          if(response.data === "Player O has won!"){
-            setIsClicked((prevGame)=>[...prevGame, aiRow*3+aiCol]);
-            setAlert({ type: "success", message: response.data }); 
+          setIsClicked((prevGame) => [...prevGame, aiRow * 3 + aiCol]);
+          if (response.data === "Player O has won!") {
+            setIsClicked((prevGame) => [...prevGame, aiRow * 3 + aiCol]);
+            setAlert({ type: "success", message: response.data });
           }
         }
       }
@@ -114,47 +130,15 @@ const Room = () => {
       <ThemeProvider theme={CustomTheme}>
         <CssBaseline />
         <Container>
-         <GameTypography title={"Tic tac toe"}></GameTypography>
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: 600,
-              height: 610,
-              position: "relative",
-              mt: CustomTheme.spacing(5),
-              ml: "auto",
-              mr: "auto",
-              borderRadius: 2,
-              boxShadow: "0px 3px 6px rgba(255, 255, 255, 0.16)",
-              backgroundColor: "primary.dark",
-            }}
-          >
-            {alert.type === "error" && (
-              <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                {alert.message}
-              </Alert>
-            )}
-            {alert.type === "success" && (
-              <Alert severity="success">
-                <AlertTitle>Success</AlertTitle>
-                {alert.message}
-              </Alert>
-            )}
-            {gameBoard.map((row, rowIndex) => (
-              <div key={rowIndex} className="row">
-                {row.map((cellValue, colIndex) => (
-                  <GameBox
-                    key={colIndex}
-                    onClick={() => handleClick(rowIndex * 3 + colIndex)}
-                    isClicked={isBoxClicked(rowIndex * 3 + colIndex)}
-                    value={cellValue}
-                  />
-                ))}
-              </div>
-            ))}
-          </Box>
+          <GameTypography title={"Tic tac toe"}></GameTypography>
+          <GameBoard
+            gameBoard={gameBoard}
+            handleClick={handleClick}
+            isBoxClicked={isBoxClicked}
+            alert={alert}
+          />
         </Container>
+        <GameHistory status={status} historyMove={moves} />
       </ThemeProvider>
     </div>
   );

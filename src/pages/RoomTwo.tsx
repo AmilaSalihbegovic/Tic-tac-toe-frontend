@@ -2,12 +2,12 @@ import { ThemeProvider } from "@emotion/react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import CustomTheme from "../theme";
-import { Alert, AlertTitle, Box, Container, CssBaseline } from "@mui/material";
-import { GameTypography } from "../components/GameTypography";
-import GameBox from "../components/GameBox";
+import {Container, CssBaseline } from "@mui/material";
+import { GameTypography, WhiteTypography } from "../components/GameTypography";
 import xo from "../assets/xo.png";
 import axios from "axios";
-import { io } from "socket.io-client";
+import GameHistory from "../components/GameHistory";
+import GameBoard from "../components/GameBoard";
 
 const RoomTwo = () => {
   const { id } = useParams();
@@ -19,7 +19,8 @@ const RoomTwo = () => {
   const [status, setStatus] = useState();
   const [users, setUsers] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState("X");
-  const [currentTurn, setCurrentTurn] = useState("X");
+  const [historyMove, setHistoryMove] = useState([]);
+
 
   useEffect(() => {
     const fetchGameDetails = async () => {
@@ -30,13 +31,54 @@ const RoomTwo = () => {
         setGame(response.data);
         setGameBoard(response.data.board);
         setMoves(response.data.moves);
-        setStatus(response.data.status);
-        setCurrentPlayer(response.data.playerX.name);
       } catch (error) {
         console.log(error);
       }
     };
     fetchGameDetails();
+    const intervalId = setInterval(fetchGameDetails, 1000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [id]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const user = sessionStorage.getItem("UserToken");
+        const userResponse = await axios.get(
+          "http://localhost:3001/api/user/me",
+          {
+            headers: {
+              "X-auth-token": user,
+            },
+          }
+        );
+        if (userResponse.status === 200) {
+          setUsers(userResponse.data._id);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUsers();
+  }, []);
+  useEffect(() => {
+    const fetchGameHistory = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/game/history/" + `${id}`
+        );
+        if (response.status === 200 && response.data !== null) {
+          const { status, moves } = response.data;
+          setStatus(status);
+          setHistoryMove(moves);
+
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchGameHistory();
   }, [isClicked]);
   const handleClick = async (index) => {
     if (!isClicked.includes(index)) {
@@ -45,14 +87,6 @@ const RoomTwo = () => {
     }
   };
   const handleMove = async (index) => {
-    if (currentPlayer !== currentTurn) {
-      setAlert({
-        type: "error",
-        message: "It's not your turn to make a move.",
-      });
-      return;
-    }
-  
     const gameResponse = await axios.get(
       `http://localhost:3001/api/game/${id}`
     );
@@ -60,57 +94,55 @@ const RoomTwo = () => {
     if (gameResponse.status === 200) {
       const playerO = gameResponse.data.playerO.playerID;
       const playerX = gameResponse.data.playerX.playerID;
-      console.log(gameResponse.data.board);
       setGame(gameResponse);
-      const user = sessionStorage.getItem("UserToken");
-      const userResponse = await axios.get(
-        "http://localhost:3001/api/user/me",
-        {
-          headers: {
-            "X-auth-token": user,
-          },
-        }
-      );
-      if (userResponse.status === 200) {
-        setUsers(userResponse.data._id);
+      let playerID;
+      if (users === playerX) {
+        playerID = playerX;
+        setCurrentPlayer("X");
+      } else if (users === playerO) {
+        playerID = playerO;
+        setCurrentPlayer("O");
+      } else {
+        setAlert({
+          type: "error",
+          message: "You are not a player in this game.",
+        });
+        return;
       }
-
-      console.log(playerO);
-      console.log(playerX);
-      const playerID = isClicked.length % 2 === 0 ? playerX : playerO;
-      console.log("playerID", playerID);
       const data = {
         playerID: playerID,
         row: Math.floor(index / 3),
         col: index % 3,
       };
       console.log("data:", data);
-      try {
-        const response = await axios.post(
-          "http://localhost:3001/api/game/move" + `/${id}`,
-          data
-        );
-        if (response.status === 400 || response.status === 403) {
-          setAlert({ type: "error", message: response.data });
-        } else {
-          if (response.data === "Move is made") {
-            setAlert({ type: "success", message: response.data });
-            setCurrentTurn(
-              currentPlayer === "X"
-                ? "O"
-                : "X"
-            );
-            setCurrentPlayer(currentPlayer==="X"?"O":"X");
-          } else {
-            console.log("response data:", response.data);
-            setAlert({ type: "success", message: response.data });
-          }
-        }
-      } catch (error) {
+      if (moves.length !== 0 && playerID === moves[moves.length - 1].player) {
         setAlert({
           type: "error",
-          message: "Error while trying to connect to server.",
+          message: "Please wait for your turn!",
         });
+        return;
+      } else {
+        try {
+          const response = await axios.post(
+            "http://localhost:3001/api/game/move" + `/${id}`,
+            data
+          );
+          if (response.status === 400 || response.status === 403) {
+            setAlert({ type: "error", message: response.data });
+          } else {
+            if (response.data === "Move is made") {
+              setAlert({ type: "success", message: response.data });
+              setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+            } else {
+              setAlert({ type: "success", message: response.data });
+            }
+          }
+        } catch (error) {
+          setAlert({
+            type: "error",
+            message: "Error while trying to connect to server.",
+          });
+        }
       }
     }
   };
@@ -132,47 +164,11 @@ const RoomTwo = () => {
       <ThemeProvider theme={CustomTheme}>
         <CssBaseline />
         <Container>
-          <GameTypography title={"Tic tac toe"}></GameTypography>
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: 600,
-              height: 610,
-              position: "relative",
-              mt: CustomTheme.spacing(5),
-              ml: "auto",
-              mr: "auto",
-              borderRadius: 2,
-              boxShadow: "0px 3px 6px rgba(255, 255, 255, 0.16)",
-              backgroundColor: "primary.dark",
-            }}
-          >
-            {alert.type === "error" && (
-              <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                {alert.message}
-              </Alert>
-            )}
-            {alert.type === "success" && (
-              <Alert severity="success">
-                <AlertTitle>Success</AlertTitle>
-                {alert.message}
-              </Alert>
-            )}
-            {gameBoard.map((row, rowIndex) => (
-              <div key={rowIndex} className="row">
-                {row.map((cellValue, colIndex) => (
-                  <GameBox
-                    key={colIndex}
-                    onClick={() => handleClick(rowIndex * 3 + colIndex)}
-                    isClicked={isBoxClicked(rowIndex * 3 + colIndex)}
-                    value={cellValue}
-                  />
-                ))}
-              </div>
-            ))}
-          </Box>
+        <GameTypography title={"Tic tac toe game:"}></GameTypography>
+        <WhiteTypography text={id}></WhiteTypography>
+          <GameBoard gameBoard={gameBoard} handleClick={handleClick} isBoxClicked={isBoxClicked} alert={alert}/>
         </Container>
+        <GameHistory status={status} historyMove={historyMove}/>
       </ThemeProvider>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -13,10 +13,11 @@ import customTheme from "../theme";
 import Typography from "@mui/material/Typography";
 import AppBar from "@mui/material/AppBar";
 import LockIcon from "@mui/icons-material/Lock";
-import Button from "@mui/material/Button";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import {Alert, AlertTitle} from '@mui/material';
+import AlertMessage from "../components/AlertMessage";
+import { AuthButton } from "../components/GameButton";
+import { AuthDescriptionTypography } from "../components/GameTypography";
 
 function Login() {
   const navigate = useNavigate();
@@ -63,18 +64,7 @@ function Login() {
         </Toolbar>
       </AppBar>
       <Container>
-      {alert.type === "error" && (
-              <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                {alert.message}
-              </Alert>
-            )}
-            {alert.type === "success" && (
-              <Alert severity="success">
-                <AlertTitle>Success</AlertTitle>
-                {alert.message}
-              </Alert>
-            )}
+      <AlertMessage type={alert.type} message={alert.message}/>
         <Box
           sx={{
             width: "100%",
@@ -89,23 +79,7 @@ function Login() {
             backgroundColor: "primary.dark",
           }}
         >
-          <Typography
-            variant="h5"
-            align="center"
-            paddingTop={4}
-            fontFamily="Roboto"
-            fontWeight="700"
-          >
-            LOGIN
-          </Typography>
-          <Typography
-            paragraph
-            align="center"
-            fontFamily="Roboto"
-            fontWeight="500"
-          >
-            Welcome back! Please login to play!
-          </Typography>
+         <AuthDescriptionTypography title={"LOGIN"} text={"Welcome back! Login to play!"}/>
           <Avatar sx={{ bgcolor: "primary.light", ml: 29 }}>
             <LockIcon />
           </Avatar>
@@ -135,25 +109,7 @@ function Login() {
               ></TextField>
             </Grid>
           </Grid>
-          <Button
-            sx={{
-              ml: 26,
-              color: "primary.dark",
-              backgroundColor: "primary.light",
-              "&:hover": {
-                backgroundColor: "primary.light",
-                opacity: [0.5, 0.9, 0.7],
-              },
-              pl: 2,
-              pr: 2,
-              fontFamily: "Roboto",
-              fontWeight: "700",
-              letterSpacing: 1,
-            }}
-            onClick={()=>handleSave()}
-          >
-            Login
-          </Button>
+          <AuthButton handleSave={handleSave} text={"LOGIN"}/>
           <Typography padding={1} marginTop={3}>
             Dont't have an account?{" "}
             <Link

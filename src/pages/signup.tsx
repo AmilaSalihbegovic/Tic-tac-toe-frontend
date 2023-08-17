@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -13,11 +13,10 @@ import customTheme from "../theme";
 import Typography from "@mui/material/Typography";
 import AppBar from "@mui/material/AppBar";
 import LockIcon from "@mui/icons-material/Lock";
-import Button from "@mui/material/Button";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ConnectingAirportsOutlined } from "@mui/icons-material";
-import {Alert, AlertTitle} from '@mui/material';
+import { AuthButton } from "../components/GameButton";
+import { AuthDescriptionTypography } from "../components/GameTypography";
 
 function Signin() {
   const navigate = useNavigate();
@@ -85,23 +84,7 @@ function Signin() {
             backgroundColor: "primary.dark",
           }}
         >
-          <Typography
-            variant="h5"
-            align="center"
-            paddingTop={4}
-            fontFamily="Roboto"
-            fontWeight="700"
-          >
-            SIGN UP
-          </Typography>
-          <Typography
-            paragraph
-            align="center"
-            fontFamily="Roboto"
-            fontWeight="500"
-          >
-            Please register to proceed!
-          </Typography>
+         <AuthDescriptionTypography title={"SIGNUP"} text={"Welcome! Please sign up to play!"}/>
           <Avatar sx={{ bgcolor: "primary.light", ml: 29 }}>
             <LockIcon />
           </Avatar>
@@ -134,25 +117,7 @@ function Signin() {
               ></TextField>
             </Grid>
           </Grid>
-          <Button
-            sx={{
-              ml: 26,
-              color: "primary.dark",
-              backgroundColor: "primary.light",
-              "&:hover": {
-                backgroundColor: "primary.light",
-                opacity: [0.5, 0.9, 0.7],
-              },
-              pl: 2,
-              pr: 2,
-              fontFamily: "Roboto",
-              fontWeight: "700",
-              letterSpacing: 1,
-            }}
-            onClick={() => handleSve()}
-          >
-            Sign up
-          </Button>
+         <AuthButton handleSave={handleSve} text={"SIGNUP"}/>
           <Typography padding={1} marginTop={1}>
             Already have an account?{" "}
             <Link
