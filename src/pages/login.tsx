@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Box,
@@ -32,26 +32,33 @@ function Login() {
     setPassword(value);
   };
 
-  
-    const handleSave=()=>{
-      const data = {
-        email: username,
-        password: password,
-      };
-      try{
-      axios.post("http://localhost:3001/api/auth/login", data).then((response)=>{
-        const token = response.data;
-        sessionStorage.setItem("UserToken", token);
-        setAlert({ type: "success", message: response.data });
-        navigate("/");
-      }).catch((err) => {
-        setAlert({ type: "error", message: "Error while trying to login. Check your credentials." });
+  const handleSave = () => {
+    const data = {
+      email: username,
+      password: password,
+    };
+    try {
+      axios
+        .post("http://localhost:3001/api/auth/login", data)
+        .then((response) => {
+          const token = response.data;
+          sessionStorage.setItem("UserToken", token);
+          setAlert({ type: "success", message: response.data });
+          navigate("/");
+        })
+        .catch((err) => {
+          setAlert({
+            type: "error",
+            message: "Error while trying to login. Check your credentials.",
+          });
+        });
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: "Error while trying to connect to server.",
       });
-  
-    }catch(error){
-      setAlert({ type: "error", message: "Error while trying to connect to server." });
     }
-  }
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -64,7 +71,7 @@ function Login() {
         </Toolbar>
       </AppBar>
       <Container>
-      <AlertMessage type={alert.type} message={alert.message}/>
+        <AlertMessage type={alert.type} message={alert.message} />
         <Box
           sx={{
             width: "100%",
@@ -79,7 +86,10 @@ function Login() {
             backgroundColor: "primary.dark",
           }}
         >
-         <AuthDescriptionTypography title={"LOGIN"} text={"Welcome back! Login to play!"}/>
+          <AuthDescriptionTypography
+            title={"LOGIN"}
+            text={"Welcome back! Login to play!"}
+          />
           <Avatar sx={{ bgcolor: "primary.light", ml: 29 }}>
             <LockIcon />
           </Avatar>
@@ -109,7 +119,7 @@ function Login() {
               ></TextField>
             </Grid>
           </Grid>
-          <AuthButton handleSave={handleSave} text={"LOGIN"}/>
+          <AuthButton handleSave={handleSave} text={"LOGIN"} />
           <Typography padding={1} marginTop={3}>
             Dont't have an account?{" "}
             <Link

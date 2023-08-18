@@ -22,7 +22,13 @@ const GameHistory = ({status, historyMove}) => {
   >
     <WhiteTypography text={"Game history:"}></WhiteTypography>
     <WhiteTypography text={`Status: ${status}`} />
-    <WhiteTypography text={`${historyMove}`} />
+    <ul>
+        {historyMove.map((move, index) => (
+          <li key={index}>
+            Player {index%2===0?"X":"O"} moved to: row {move.row}, col {move.col}
+          </li>
+        ))}
+      </ul>
   </Box>
   )
 }
