@@ -2,12 +2,13 @@ import { ThemeProvider } from "@emotion/react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import CustomTheme from "../theme";
-import {Container, CssBaseline } from "@mui/material";
+import { Container, CssBaseline } from "@mui/material";
 import { GameTypography, WhiteTypography } from "../components/GameTypography";
 import xo from "../assets/xo.png";
 import axios from "axios";
 import GameHistory from "../components/GameHistory";
 import GameBoard from "../components/GameBoard";
+import { io } from "socket.io-client";
 
 const RoomTwo = () => {
   const { id } = useParams();
@@ -19,28 +20,16 @@ const RoomTwo = () => {
   const [status, setStatus] = useState();
   const [users, setUsers] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState("X");
-  const [historyMove, setHistoryMove] = useState([]);
-
+  const socket = io("http://localhost:3001");
 
   useEffect(() => {
-    const fetchGameDetails = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3001/api/game/" + `${id}`
-        );
-        setGame(response.data);
-        setGameBoard(response.data.board);
-        setMoves(response.data.moves);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchGameDetails();
-    const intervalId = setInterval(fetchGameDetails, 1000);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [id]);
+    socket.emit("joinGame", id);
+    socket.on("gameState", ({ board, moves, status }) => {
+      setGameBoard(board);
+      setMoves(moves);
+      setStatus(status);
+    });
+  }, [isClicked]);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -62,24 +51,7 @@ const RoomTwo = () => {
     };
     fetchUsers();
   }, []);
-  useEffect(() => {
-    const fetchGameHistory = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3001/api/game/history/" + `${id}`
-        );
-        if (response.status === 200 && response.data !== null) {
-          const { status, moves } = response.data;
-          setStatus(status);
-          setHistoryMove(moves);
 
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchGameHistory();
-  }, [isClicked]);
   const handleClick = async (index) => {
     if (!isClicked.includes(index)) {
       setIsClicked((prevGame) => [...prevGame, index]);
@@ -114,35 +86,16 @@ const RoomTwo = () => {
         row: Math.floor(index / 3),
         col: index % 3,
       };
-      console.log("data:", data);
       if (moves.length !== 0 && playerID === moves[moves.length - 1].player) {
         setAlert({
           type: "error",
           message: "Please wait for your turn!",
         });
-        return;
+        setTimeout(() => {
+          setAlert({ type: "", message: "" });
+        }, 3000);
       } else {
-        try {
-          const response = await axios.post(
-            "http://localhost:3001/api/game/move" + `/${id}`,
-            data
-          );
-          if (response.status === 400 || response.status === 403) {
-            setAlert({ type: "error", message: response.data });
-          } else {
-            if (response.data === "Move is made") {
-              setAlert({ type: "success", message: response.data });
-              setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
-            } else {
-              setAlert({ type: "success", message: response.data });
-            }
-          }
-        } catch (error) {
-          setAlert({
-            type: "error",
-            message: "Error while trying to connect to server.",
-          });
-        }
+      socket.emit("makeMove", { id, data });
       }
     }
   };
@@ -164,11 +117,16 @@ const RoomTwo = () => {
       <ThemeProvider theme={CustomTheme}>
         <CssBaseline />
         <Container>
-        <GameTypography title={"Tic tac toe game:"}></GameTypography>
-        <WhiteTypography text={id}></WhiteTypography>
-          <GameBoard gameBoard={gameBoard} handleClick={handleClick} isBoxClicked={isBoxClicked} alert={alert}/>
+          <GameTypography title={"Tic tac toe game:"}></GameTypography>
+          <WhiteTypography text={id}></WhiteTypography>
+          <GameBoard
+            gameBoard={gameBoard}
+            handleClick={handleClick}
+            isBoxClicked={isBoxClicked}
+            alert={alert}
+          />
         </Container>
-        <GameHistory status={status} historyMove={historyMove}/>
+        <GameHistory status={status} historyMove={moves} />
       </ThemeProvider>
     </div>
   );

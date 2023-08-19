@@ -26,29 +26,13 @@ const Room = () => {
         );
         setGame(response.data);
         setGameBoard(response.data.board);
+        setMoves(response.data.moves);
+        setStatus(response.data.status);
       } catch (error) {
         console.log(error);
       }
     };
     fetchGameDetails();
-  }, [isClicked]);
-
-  useEffect(() => {
-    const fetchGameHistory = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3001/api/game/history/" + `${id}`
-        );
-        if (response.status === 200 && response.data !== null) {
-          const { status, moves } = response.data;
-          setStatus(status);
-          setMoves(moves);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchGameHistory();
   }, [isClicked]);
   const handleClick = async (index) => {
     if (!isClicked.includes(index)) {

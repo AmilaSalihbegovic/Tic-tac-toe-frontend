@@ -19,6 +19,7 @@ import {
   OnePlayerGameButton,
   TwoUserGameButton,
 } from "../components/GameButton";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -75,7 +76,11 @@ const Home = () => {
         }
       }
     } catch (error) {
-      console.log(error);
+      setAlert({
+        type: "error",
+        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${<Link to={"/login"}>login</Link>}`,
+      });
+      sessionStorage.clear();
     }
   };
   const HandleTwoPlayerGame = async () => {
@@ -131,8 +136,9 @@ const Home = () => {
     } catch (error) {
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game ${error}`,
+        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${<Link to={"/login"}>login</Link>}`,
       });
+      sessionStorage.clear();
     }
   };
   const JoinTwoPlayerGame = async () => {
@@ -173,11 +179,12 @@ const Home = () => {
           }
         }
       }
-    } catch (error) {
+    }catch (error) {
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game ${error}`,
+        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${<Link to={"/login"}>login</Link>}`,
       });
+      sessionStorage.clear();
     }
   };
 

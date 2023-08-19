@@ -5,7 +5,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from './pages/home';
 import Room from './pages/Room';
 import RoomTwo from './pages/RoomTwo';
-import { checkTokenExpiration } from './components/TokenCheck';
 import { io } from "socket.io-client";
 
 function App() {
@@ -17,16 +16,6 @@ function App() {
       setLogedIn(true);
     }
   })
-  useEffect(()=>{
-    checkTokenExpiration();
-  },[]);
-  useEffect(() => {
-    const intervalId = setInterval(checkTokenExpiration, 300000); 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
-  
   return (
     <div>
      <BrowserRouter>
