@@ -14,7 +14,7 @@ const GameIDs = ({data}) => {
         <Box
         sx={{
           width: "100%",
-          maxWidth: 300,
+          maxWidth: 360,
           height: "100%",
           maxHeight: 500,
           position: "relative",

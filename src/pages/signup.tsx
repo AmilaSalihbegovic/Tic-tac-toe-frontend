@@ -17,6 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthButton } from "../components/GameButton";
 import { AuthDescriptionTypography } from "../components/GameTypography";
+import AlertMessage from "../components/AlertMessage";
 
 function Signin() {
   const navigate = useNavigate();
@@ -69,6 +70,7 @@ function Signin() {
           </Typography>
         </Toolbar>
       </AppBar>
+      <AlertMessage type={alert.type} message={alert.message}/>
       <Container>
         <Box
           sx={{
