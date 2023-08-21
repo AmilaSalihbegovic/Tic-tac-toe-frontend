@@ -20,12 +20,35 @@ import {
   TwoUserGameButton,
 } from "../components/GameButton";
 import { Link } from "react-router-dom";
+import GameIDs from "../components/GameIDs";
+
 
 const Home = () => {
   const navigate = useNavigate();
   const [alert, setAlert] = useState({ type: "", message: "" });
   const [gameId, setGameId] = useState("");
+  const [history, setHistory] = useState([]);
 
+
+ 
+  useEffect(()=>{
+    const handleHistory= async() =>{
+      try{
+        const data = await axios.get("http://localhost:3001/api/game");
+        if(!data){
+          setAlert({
+            type: "error",
+            message: "Couldn't load history because an error occured.",
+          });
+        }else{
+          setHistory(data.data);
+        }
+      }catch(error){
+        console.log(error);
+      }
+    }
+    handleHistory();
+  },[])
   const HandleOnePlayerGame = async () => {
     try {
       const data = sessionStorage.getItem("UserToken");
@@ -232,6 +255,7 @@ const Home = () => {
           />
           <JoinGame JoinTwoPlayerGame={JoinTwoPlayerGame} text={"Join game"} />
         </Container>
+        <GameIDs data={history}/>
       </ThemeProvider>
     </div>
   );

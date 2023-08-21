@@ -25,7 +25,7 @@ const GameHistory = ({status, historyMove}) => {
     <ul>
         {historyMove.map((move, index) => (
           <li key={index}>
-            Player {index%2===0?"X":"O"} moved to: row {move.row}, col {move.col}
+            Player {index%2===0?"One":"Two"} moved to: row {move.row}, col {move.col}
           </li>
         ))}
       </ul>
