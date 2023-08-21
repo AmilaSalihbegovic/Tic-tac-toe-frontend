@@ -88,23 +88,6 @@ const History = () => {
           <Button onClick={handleLogout} sx={{ color: "primary.light" }}>
             Exit
           </Button>
-          {/* <Button
-            onClick={handleHistory}
-            sx={{
-              marginTop: CustomTheme.spacing(1),
-              marginLeft: "auto",
-              marginRight: "auto",
-              display: "flex",
-              justifyContent: "center",
-              color: "primary.dark",
-              backgroundColor: "text.primary",
-              "&:hover": {
-                backgroundColor: "primary.light",
-              },
-            }}
-          >
-            Search game history
-          </Button> */}
           <GameBoard
             gameBoard={gameBoard}
             handleClick={handleClick}
