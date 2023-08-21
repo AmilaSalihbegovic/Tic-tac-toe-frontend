@@ -8,7 +8,6 @@ import axios from "axios";
 import { GameTypography } from "../components/GameTypography";
 import GameHistory from "../components/GameHistory";
 import GameBoard from "../components/GameBoard";
-import { AuthButton } from "../components/GameButton";
 
 const Room = () => {
   const { id } = useParams();
@@ -70,7 +69,7 @@ const Room = () => {
       }
       setAlert({ type: "success", message: response.data });
     } catch (error) {
-      setAlert({ type: "error", message: error });
+      setAlert({ type: "error", message: "error" });
     }
   };
   const handleAIMove = async () => {

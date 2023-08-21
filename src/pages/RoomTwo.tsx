@@ -55,9 +55,14 @@ const RoomTwo = () => {
   }, []);
 
   const handleClick = async (index) => {
-    if (!isClicked.includes(index)) {
+    if (!isClicked.includes(index) && status==="in progress") {
       setIsClicked((prevGame) => [...prevGame, index]);
       handleMove(index);
+    }else{
+      setAlert({
+        type: "error",
+        message: "The game has ended.",
+      });
     }
   };
   const handleMove = async (index) => {
@@ -65,46 +70,50 @@ const RoomTwo = () => {
       `http://localhost:3001/api/game/${id}`
     );
     console.log(gameResponse);
-    if (gameResponse.status === 200) {
-      const playerO = gameResponse.data.playerO.playerID;
-      const playerX = gameResponse.data.playerX.playerID;
-      setGame(gameResponse);
-      let playerID;
-      if (users === playerX) {
-        playerID = playerX;
-        setCurrentPlayer("X");
-      } else if (users === playerO) {
-        playerID = playerO;
-        setCurrentPlayer("O");
-      } else {
-        setAlert({
-          type: "error",
-          message: "You are not a player in this game.",
-        });
-        return;
-      }
-      const data = {
-        playerID: playerID,
-        row: Math.floor(index / 3),
-        col: index % 3,
-      };
-      if (moves.length !== 0 && playerID === moves[moves.length - 1].player) {
-        setAlert({
-          type: "error",
-          message: "Please wait for your turn!",
-        });
-        setTimeout(() => {
-          setAlert({ type: "", message: "" });
-        }, 3000);
-      } else {
+    if (gameResponse.status !== 200) {
+      setAlert({
+        type: "error",
+        message: "Something went wrong. Please try again.",
+      });
+    }
+    const playerO = gameResponse.data.playerO.playerID;
+    const playerX = gameResponse.data.playerX.playerID;
+    setGame(gameResponse);
+    let playerID;
+    if (users === playerX) {
+      playerID = playerX;
+      setCurrentPlayer("X");
+    } else if (users === playerO) {
+      playerID = playerO;
+      setCurrentPlayer("O");
+    } else {
+      setAlert({
+        type: "error",
+        message: "You are not a player in this game.",
+      });
+      return;
+    }
+    const data = {
+      playerID: playerID,
+      row: Math.floor(index / 3),
+      col: index % 3,
+    };
+    if (moves.length !== 0 && playerID === moves[moves.length - 1].player) {
+      setAlert({
+        type: "error",
+        message: "Please wait for your turn!",
+      });
+      setTimeout(() => {
+        setAlert({ type: "", message: "" });
+      }, 3000);
+    } else {
       socket.emit("makeMove", { id, data });
-      }
     }
   };
-  const handleLogout=()=>{
+  const handleLogout = () => {
     sessionStorage.clear();
     navigate("/");
-  }
+  };
   const isBoxClicked = (index) => {
     return isClicked.includes(index);
   };
@@ -125,7 +134,9 @@ const RoomTwo = () => {
         <Container>
           <GameTypography title={"Tic tac toe game:"}></GameTypography>
           <WhiteTypography text={id}></WhiteTypography>
-          <Button onClick={handleLogout} sx={{color:"primary.light"}}>Exit</Button>
+          <Button onClick={handleLogout} sx={{ color: "primary.light" }}>
+            Exit
+          </Button>
           <GameBoard
             gameBoard={gameBoard}
             handleClick={handleClick}

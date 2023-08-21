@@ -34,7 +34,7 @@ const Home = () => {
             message: "Couldn't load history because an error occured.",
           });
         }
-        setHistory(data.data);
+        setHistory(data.data.reverse());
       } catch (error) {
         console.log(error);
       }
@@ -89,11 +89,8 @@ const Home = () => {
     } catch (error) {
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${(
-          <Link to={"/login"}>login</Link>
-        )}`,
+        message: "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)"
       });
-      sessionStorage.clear();
     }
   };
   const HandleTwoPlayerGame = async () => {
@@ -147,11 +144,8 @@ const Home = () => {
     } catch (error) {
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${(
-          <Link to={"/login"}>login</Link>
-        )}`,
+        message: "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)"
       });
-      sessionStorage.clear();
     }
   };
   const JoinTwoPlayerGame = async () => {
@@ -193,11 +187,8 @@ const Home = () => {
     } catch (error) {
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${(
-          <Link to={"/login"}>login</Link>
-        )}`,
+        message: "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)"
       });
-      sessionStorage.clear();
     }
   };
   const handleLogout = () => {
