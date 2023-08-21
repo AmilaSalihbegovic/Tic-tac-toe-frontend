@@ -1,13 +1,14 @@
 import { ThemeProvider } from "@emotion/react";
-import { Container, CssBaseline } from "@mui/material";
+import { Button, Container, CssBaseline } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import CustomTheme from "../theme";
 import xo from "../assets/xo.png";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GameTypography } from "../components/GameTypography";
 import GameHistory from "../components/GameHistory";
 import GameBoard from "../components/GameBoard";
+import { AuthButton } from "../components/GameButton";
 
 const Room = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const Room = () => {
   const [gameBoard, setGameBoard] = useState([]);
   const [alert, setAlert] = useState({ type: "", message: "" });
   const [status, setStatus] = useState();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchGameDetails = async () => {
@@ -95,7 +97,10 @@ const Room = () => {
       setAlert({ type: "error", message: error });
     }
   };
-
+  const handleLogout=()=>{
+    sessionStorage.clear();
+    navigate("/");
+  }
   const isBoxClicked = (index) => {
     return isClicked.includes(index);
   };
@@ -115,6 +120,7 @@ const Room = () => {
         <CssBaseline />
         <Container>
           <GameTypography title={"Tic tac toe"}></GameTypography>
+          <Button onClick={handleLogout} sx={{color:"primary.light"}}>Exit</Button>
           <GameBoard
             gameBoard={gameBoard}
             handleClick={handleClick}

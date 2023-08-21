@@ -1,14 +1,15 @@
 import { ThemeProvider } from "@emotion/react";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import CustomTheme from "../theme";
-import { Container, CssBaseline } from "@mui/material";
+import { Button, Container, CssBaseline } from "@mui/material";
 import { GameTypography, WhiteTypography } from "../components/GameTypography";
 import xo from "../assets/xo.png";
 import axios from "axios";
 import GameHistory from "../components/GameHistory";
 import GameBoard from "../components/GameBoard";
 import { io } from "socket.io-client";
+import { AuthButton } from "../components/GameButton";
 
 const RoomTwo = () => {
   const { id } = useParams();
@@ -21,6 +22,7 @@ const RoomTwo = () => {
   const [users, setUsers] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState("X");
   const socket = io("http://localhost:3001");
+  const navigate = useNavigate();
 
   useEffect(() => {
     socket.emit("joinGame", id);
@@ -99,6 +101,10 @@ const RoomTwo = () => {
       }
     }
   };
+  const handleLogout=()=>{
+    sessionStorage.clear();
+    navigate("/");
+  }
   const isBoxClicked = (index) => {
     return isClicked.includes(index);
   };
@@ -119,6 +125,7 @@ const RoomTwo = () => {
         <Container>
           <GameTypography title={"Tic tac toe game:"}></GameTypography>
           <WhiteTypography text={id}></WhiteTypography>
+          <Button onClick={handleLogout} sx={{color:"primary.light"}}>Exit</Button>
           <GameBoard
             gameBoard={gameBoard}
             handleClick={handleClick}
