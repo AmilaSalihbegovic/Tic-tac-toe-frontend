@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  CssBaseline,
-  ThemeProvider,
-} from "@mui/material";
+import { Button, Container, CssBaseline, ThemeProvider } from "@mui/material";
 import CustomTheme from "../theme";
 import xo from "../assets/xo.png";
 import axios from "axios";
@@ -19,9 +15,7 @@ import {
   OnePlayerGameButton,
   TwoUserGameButton,
 } from "../components/GameButton";
-import { Link } from "react-router-dom";
 import GameIDs from "../components/GameIDs";
-
 
 const Home = () => {
   const navigate = useNavigate();
@@ -29,26 +23,23 @@ const Home = () => {
   const [gameId, setGameId] = useState("");
   const [history, setHistory] = useState([]);
 
-
- 
-  useEffect(()=>{
-    const handleHistory= async() =>{
-      try{
+  useEffect(() => {
+    const handleHistory = async () => {
+      try {
         const data = await axios.get("http://localhost:3001/api/game");
-        if(!data){
-          setAlert({
+        if (!data) {
+          return setAlert({
             type: "error",
             message: "Couldn't load history because an error occured.",
           });
-        }else{
-          setHistory(data.data);
         }
-      }catch(error){
+        setHistory(data.data.reverse());
+      } catch (error) {
         console.log(error);
       }
-    }
+    };
     handleHistory();
-  },[])
+  }, []);
   const HandleOnePlayerGame = async () => {
     try {
       const data = sessionStorage.getItem("UserToken");
@@ -58,52 +49,47 @@ const Home = () => {
           type: "error",
           message: "You must login to be able to play! :)",
         });
-        navigate("/login");
-      } else {
-        const response = await axios.get("http://localhost:3001/api/user/me", {
-          headers: {
-            "X-auth-token": data,
-          },
-        });
-        if (response.status !== 200) {
-          setAlert({
-            type: "error",
-            message:
-              "An error occured while trying to start a game, please check your credentials and try again! :)",
-          });
-        } else {
-          console.log(response.data._id);
-          const gameData = {
-            playerX: {
-              playerID: response.data._id,
-              name: "X",
-            },
-            playerO: {
-              name: "O",
-            },
-            currentPlayer: "X",
-          };
-          console.log(gameData);
-          const createGame = await axios.post(
-            "http://localhost:3001/api/game",
-            gameData
-          );
-          if (createGame.status === 200) {
-            sessionStorage.setItem("X", createGame.data.playerX.playerID);
-            sessionStorage.setItem("O", createGame.data.playerO.playerID);
-            const id = createGame.data._id;
-            navigate(`/room/${id}`);
-          } else {
-            navigate("/login");
-          }
-        }
+        return navigate("/login");
       }
+      const response = await axios.get("http://localhost:3001/api/user/me", {
+        headers: {
+          "X-auth-token": data,
+        },
+      });
+      if (response.status !== 200) {
+        return setAlert({
+          type: "error",
+          message:
+            "An error occured while trying to start a game, please check your credentials and try again! :)",
+        });
+      }
+      const gameData = {
+        playerX: {
+          playerID: response.data._id,
+          name: "X",
+        },
+        playerO: {
+          name: "O",
+        },
+        currentPlayer: "X",
+      };
+      const createGame = await axios.post(
+        "http://localhost:3001/api/game",
+        gameData
+      );
+      if (createGame.status === 200) {
+        sessionStorage.setItem("X", createGame.data.playerX.playerID);
+        sessionStorage.setItem("O", createGame.data.playerO.playerID);
+        const id = createGame.data._id;
+        return navigate(`/room/${id}`);
+      }
+      navigate("/login");
     } catch (error) {
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${<Link to={"/login"}>login</Link>}`,
+        message:
+          "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)",
       });
-      sessionStorage.clear();
     }
   };
   const HandleTwoPlayerGame = async () => {
@@ -114,54 +100,51 @@ const Home = () => {
           type: "error",
           message: "You must login to be able to play! :)",
         });
-        navigate("/login");
-      } else {
-        const response = await axios.get("http://localhost:3001/api/user/me", {
-          headers: {
-            "X-auth-token": data,
-          },
-        });
-        if (response.status !== 200) {
-          setAlert({
-            type: "error",
-            message:
-              "An error occured while trying to start a game, please check your credentials and try again! :)",
-          });
-        } else {
-          console.log(response.data._id);
-          const gameData = {
-            playerX: {
-              playerID: response.data._id,
-              name: "X",
-            },
-            playerO: {
-              playerID: null,
-              name: "O",
-            },
-            currentPlayer: "X",
-          };
-          console.log(gameData);
-          const createGame = await axios.post(
-            "http://localhost:3001/api/game",
-            gameData
-          );
-          if (createGame.status === 200) {
-            sessionStorage.setItem("X", createGame.data.playerX.playerID);
-            sessionStorage.setItem("O", createGame.data.playerO.playerID);
-            const id = createGame.data._id;
-            setGameId(id);
-            navigate(`/room/two/${id}`);
-          } else {
-            navigate("/login");
-          }
-        }
+        return navigate("/login");
       }
+      const response = await axios.get("http://localhost:3001/api/user/me", {
+        headers: {
+          "X-auth-token": data,
+        },
+      });
+      if (response.status !== 200) {
+        return setAlert({
+          type: "error",
+          message:
+            "An error occured while trying to start a game, please check your credentials and try again! :)",
+        });
+      }
+      console.log(response.data._id);
+      const gameData = {
+        playerX: {
+          playerID: response.data._id,
+          name: "X",
+        },
+        playerO: {
+          playerID: null,
+          name: "O",
+        },
+        currentPlayer: "X",
+      };
+      console.log(gameData);
+      const createGame = await axios.post(
+        "http://localhost:3001/api/game",
+        gameData
+      );
+      if (createGame.status === 200) {
+        sessionStorage.setItem("X", createGame.data.playerX.playerID);
+        sessionStorage.setItem("O", createGame.data.playerO.playerID);
+        const id = createGame.data._id;
+        setGameId(id);
+        return navigate(`/room/two/${id}`);
+      }
+      navigate("/login");
     } catch (error) {
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${<Link to={"/login"}>login</Link>}`,
+        message:
+          "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)",
       });
-      sessionStorage.clear();
     }
   };
   const JoinTwoPlayerGame = async () => {
@@ -172,45 +155,45 @@ const Home = () => {
           type: "error",
           message: "You must login to be able to play! :)",
         });
-        navigate("/login");
-      } else {
-        const response = await axios.get("http://localhost:3001/api/user/me", {
-          headers: {
-            "X-auth-token": data,
-          },
-        });
-        if (response.status !== 200) {
-          setAlert({
-            type: "error",
-            message:
-              "An error occured while trying to start a game, please check your credentials and try again! :)",
-          });
-        } else {
-          const userID = response.data._id;
-          const joinGameResponse = await axios.post(
-            "http://localhost:3001/api/game/" + `${gameId}`,
-            { playerID: userID }
-          );
-          console.log(joinGameResponse);
-          if ((joinGameResponse.data = "Player has joined the game.")) {
-            navigate(`/room/two/${gameId}`);
-          } else {
-            setAlert({
-              type: "error",
-              message: "An error occured while trying to start a game",
-            });
-          }
-        }
+        return navigate("/login");
       }
-    }catch (error) {
+      const response = await axios.get("http://localhost:3001/api/user/me", {
+        headers: {
+          "X-auth-token": data,
+        },
+      });
+      if (response.status !== 200) {
+        return setAlert({
+          type: "error",
+          message:
+            "An error occured while trying to start a game, please check your credentials and try again! :)",
+        });
+      }
+      const userID = response.data._id;
+      const joinGameResponse = await axios.post(
+        "http://localhost:3001/api/game/" + `${gameId}`,
+        { playerID: userID }
+      );
+      console.log(joinGameResponse);
+      if ((joinGameResponse.data = "Player has joined the game.")) {
+        return navigate(`/room/two/${gameId}`);
+      }
       setAlert({
         type: "error",
-        message: `An error occured while trying to start a game. Please try login again.If that doesn't work, please be patient with us and try again in a few minutes. :) ${<Link to={"/login"}>login</Link>}`,
+        message: "An error occured while trying to start a game",
       });
-      sessionStorage.clear();
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message:
+          "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)",
+      });
     }
   };
-
+  const handleLogout = () => {
+    sessionStorage.clear();
+    navigate("/login");
+  };
   return (
     <div
       style={{
@@ -254,8 +237,17 @@ const Home = () => {
             }}
           />
           <JoinGame JoinTwoPlayerGame={JoinTwoPlayerGame} text={"Join game"} />
+          <Button
+            onClick={handleLogout}
+            sx={{
+              color: "primary.dark",
+              "&:hover": { color: "primary.light" },
+            }}
+          >
+            Switch account
+          </Button>
         </Container>
-        <GameIDs data={history}/>
+        <GameIDs data={history} />
       </ThemeProvider>
     </div>
   );

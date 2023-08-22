@@ -9,7 +9,6 @@ import axios from "axios";
 import GameHistory from "../components/GameHistory";
 import GameBoard from "../components/GameBoard";
 import { io } from "socket.io-client";
-import { AuthButton } from "../components/GameButton";
 
 const RoomTwo = () => {
   const { id } = useParams();
@@ -55,56 +54,77 @@ const RoomTwo = () => {
   }, []);
 
   const handleClick = async (index) => {
+    if(status !== "in progress"){
+      return setAlert({
+        type: "error",
+        message: "The game has ended.",
+      });
+    } 
     if (!isClicked.includes(index)) {
       setIsClicked((prevGame) => [...prevGame, index]);
-      handleMove(index);
+      return handleMove(index);
     }
+   
   };
   const handleMove = async (index) => {
     const gameResponse = await axios.get(
       `http://localhost:3001/api/game/${id}`
     );
     console.log(gameResponse);
-    if (gameResponse.status === 200) {
-      const playerO = gameResponse.data.playerO.playerID;
-      const playerX = gameResponse.data.playerX.playerID;
-      setGame(gameResponse);
-      let playerID;
-      if (users === playerX) {
-        playerID = playerX;
-        setCurrentPlayer("X");
-      } else if (users === playerO) {
-        playerID = playerO;
-        setCurrentPlayer("O");
-      } else {
-        setAlert({
-          type: "error",
-          message: "You are not a player in this game.",
-        });
-        return;
-      }
-      const data = {
-        playerID: playerID,
-        row: Math.floor(index / 3),
-        col: index % 3,
-      };
-      if (moves.length !== 0 && playerID === moves[moves.length - 1].player) {
-        setAlert({
-          type: "error",
-          message: "Please wait for your turn!",
-        });
-        setTimeout(() => {
-          setAlert({ type: "", message: "" });
-        }, 3000);
-      } else {
-      socket.emit("makeMove", { id, data });
-      }
+    if (gameResponse.status !== 200) {
+      setAlert({
+        type: "error",
+        message: "Something went wrong. Please try again.",
+      });
     }
+    const playerO = gameResponse.data.playerO.playerID;
+    const playerX = gameResponse.data.playerX.playerID;
+    setGame(gameResponse);
+    let playerID;
+    if (users === playerX) {
+      playerID = playerX;
+      setCurrentPlayer("X");
+    }
+    if (users === playerO) {
+      playerID = playerO;
+      setCurrentPlayer("O");
+    }
+    if (users !== playerX && users !== playerO) {
+      setAlert({
+        type: "error",
+        message: "You are not a player in this game.",
+      });
+    }
+
+    const data = {
+      playerID: playerID,
+      row: Math.floor(index / 3),
+      col: index % 3,
+    };
+    if (moves.length !== 0 && playerID === moves[moves.length - 1].player) {
+      setAlert({
+        type: "error",
+        message: "Please wait for your turn!",
+      });
+      return setTimeout(() => {
+        setAlert({ type: "", message: "" });
+      }, 2000);
+    }
+    if(gameResponse.data.board[data.row][data.col]!==""){
+      setAlert({
+        type: "error",
+        message: "Please choose an empty field!",
+      });
+      return setTimeout(() => {
+        setAlert({ type: "", message: "" });
+      }, 2000);
+    }
+    socket.emit("makeMove", { id, data });
   };
-  const handleLogout=()=>{
+  const handleLogout = () => {
     sessionStorage.clear();
     navigate("/");
-  }
+  };
   const isBoxClicked = (index) => {
     return isClicked.includes(index);
   };
@@ -125,7 +145,9 @@ const RoomTwo = () => {
         <Container>
           <GameTypography title={"Tic tac toe game:"}></GameTypography>
           <WhiteTypography text={id}></WhiteTypography>
-          <Button onClick={handleLogout} sx={{color:"primary.light"}}>Exit</Button>
+          <Button onClick={handleLogout} sx={{ color: "primary.light" }}>
+            Exit
+          </Button>
           <GameBoard
             gameBoard={gameBoard}
             handleClick={handleClick}

@@ -4,7 +4,6 @@ import { ThemeProvider } from "@emotion/react";
 import CustomTheme from "../theme";
 import { Button, Container, CssBaseline } from "@mui/material";
 import { GameTypography } from "../components/GameTypography";
-import { AuthButton } from "../components/GameButton";
 import { useNavigate, useParams } from "react-router-dom";
 import GameBoard from "../components/GameBoard";
 import axios from "axios";
@@ -17,41 +16,39 @@ const History = () => {
   const [alert, setAlert] = useState({ type: "", message: "" });
   const navigate = useNavigate();
   const [isClicked, setIsClicked] = useState(true);
-  const {id} = useParams();
+  const { id } = useParams();
 
-
-  useEffect(()=>{
+  useEffect(() => {
     const handleHistory = async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:3001/api/game/${id}`
-          );
-          if (!response) {
-            setAlert({
-              type: "error",
-              message:
-                "Could not find the game. Please check game ID and try again.:)",
-            });
-            return;
-          }
-          if (response.data.status === "in progress") {
-            setAlert({
-              type: "error",
-              message: "Game is still on going. Maybe try another one?",
-            });
-            return;
-          } else {
-            setGameBoard(response.data.board);
-            setHistoryMoves(response.data.moves);
-            setHistoryStatus(response.data.status);
-          }
-        } catch (error) {
-          console.log(error);
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/game/${id}`
+        );
+        if (!response) {
+          setAlert({
+            type: "error",
+            message:
+              "Could not find the game. Please check game ID and try again.:)",
+          });
+          return;
         }
-      };
-      handleHistory();
+        if (response.data.status === "in progress") {
+          setAlert({
+            type: "error",
+            message: "Game is still on going. Maybe try another one?",
+          });
+          return;
+        }
+        setGameBoard(response.data.board);
+        setHistoryMoves(response.data.moves);
+        setHistoryStatus(response.data.status);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    handleHistory();
   }, []);
- 
+
   const isBoxClicked = () => {
     return true;
   };
@@ -96,7 +93,6 @@ const History = () => {
           />
         </Container>
         <GameHistory status={historyStatus} historyMove={historyMoves} />
-        
       </ThemeProvider>
     </div>
   );

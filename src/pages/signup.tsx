@@ -17,6 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthButton } from "../components/GameButton";
 import { AuthDescriptionTypography } from "../components/GameTypography";
+import AlertMessage from "../components/AlertMessage";
 
 function Signin() {
   const navigate = useNavigate();
@@ -44,7 +45,6 @@ function Signin() {
       axios
       .post("http://localhost:3001/api/auth/signin", data)
       .then((result) => {
-        //console.log(result.headers);
         const token = result.headers["X-auth-token"];
         localStorage.setItem("UserToken", token);
         const name = result.data.name;
@@ -69,6 +69,7 @@ function Signin() {
           </Typography>
         </Toolbar>
       </AppBar>
+      <AlertMessage type={alert.type} message={alert.message}/>
       <Container>
         <Box
           sx={{

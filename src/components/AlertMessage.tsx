@@ -16,7 +16,7 @@ const AlertMessage = ({type, message}) => {
         {message}
       </Alert>
     )}
-    </div>
+  </div>
   )
 }
 
