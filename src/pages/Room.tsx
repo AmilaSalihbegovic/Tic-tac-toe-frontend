@@ -30,15 +30,23 @@ const Room = () => {
         setMoves(response.data.moves);
         setStatus(response.data.status);
       } catch (error) {
-        console.log(error);
+        return new Error(
+          `Unable to get game with given ID because an error ${error} occured.`
+        );
       }
     };
     fetchGameDetails();
   }, [isClicked]);
   const handleClick = async (index) => {
+    if (status !== "in progress") {
+      return setAlert({
+        type: "error",
+        message: "The game has ended.",
+      });
+    }
     if (!isClicked.includes(index)) {
       setIsClicked((prevGame) => [...prevGame, index]);
-      handleUserMove(index);
+      return handleUserMove(index);
     }
   };
   const handleUserMove = async (index) => {
@@ -47,7 +55,10 @@ const Room = () => {
       row: Math.floor(index / 3),
       col: index % 3,
     };
-    if (moves.length !== 0 && data.playerID === moves[moves.length - 1].player) {
+    if (
+      moves.length !== 0 &&
+      data.playerID === moves[moves.length - 1].player
+    ) {
       setTimeout(() => {
         setAlert({ type: "", message: "" });
       }, 3000);
@@ -69,7 +80,7 @@ const Room = () => {
       }
       setAlert({ type: "success", message: response.data });
     } catch (error) {
-      setAlert({ type: "error", message: "error" });
+      setAlert({ type: "error", message: "Error while trying to make move." });
     }
   };
   const handleAIMove = async () => {
@@ -93,10 +104,9 @@ const Room = () => {
         const aiRow = response.data[0];
         const aiCol = response.data[1];
         setIsClicked((prevGame) => [...prevGame, aiRow * 3 + aiCol]);
-        if (response.data === "Player O has won!") {
-          setIsClicked((prevGame) => [...prevGame, aiRow * 3 + aiCol]);
-          setAlert({ type: "success", message: response.data });
-        }
+      }
+      if (response.data === "Player O has won!") {
+        setAlert({ type: "success", message: response.data });
       }
     } catch (error) {
       setAlert({ type: "error", message: error });

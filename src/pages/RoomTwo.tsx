@@ -9,7 +9,6 @@ import axios from "axios";
 import GameHistory from "../components/GameHistory";
 import GameBoard from "../components/GameBoard";
 import { io } from "socket.io-client";
-import { AuthButton } from "../components/GameButton";
 
 const RoomTwo = () => {
   const { id } = useParams();
@@ -55,15 +54,17 @@ const RoomTwo = () => {
   }, []);
 
   const handleClick = async (index) => {
-    if (!isClicked.includes(index) && status==="in progress") {
-      setIsClicked((prevGame) => [...prevGame, index]);
-      handleMove(index);
-    }else{
-      setAlert({
+    if(status !== "in progress"){
+      return setAlert({
         type: "error",
         message: "The game has ended.",
       });
+    } 
+    if (!isClicked.includes(index)) {
+      setIsClicked((prevGame) => [...prevGame, index]);
+      return handleMove(index);
     }
+   
   };
   const handleMove = async (index) => {
     const gameResponse = await axios.get(
@@ -83,16 +84,18 @@ const RoomTwo = () => {
     if (users === playerX) {
       playerID = playerX;
       setCurrentPlayer("X");
-    } else if (users === playerO) {
+    }
+    if (users === playerO) {
       playerID = playerO;
       setCurrentPlayer("O");
-    } else {
+    }
+    if (users !== playerX && users !== playerO) {
       setAlert({
         type: "error",
         message: "You are not a player in this game.",
       });
-      return;
     }
+
     const data = {
       playerID: playerID,
       row: Math.floor(index / 3),
@@ -103,12 +106,20 @@ const RoomTwo = () => {
         type: "error",
         message: "Please wait for your turn!",
       });
-      setTimeout(() => {
+      return setTimeout(() => {
         setAlert({ type: "", message: "" });
-      }, 3000);
-    } else {
-      socket.emit("makeMove", { id, data });
+      }, 2000);
     }
+    if(gameResponse.data.board[data.row][data.col]!==""){
+      setAlert({
+        type: "error",
+        message: "Please choose an empty field!",
+      });
+      return setTimeout(() => {
+        setAlert({ type: "", message: "" });
+      }, 2000);
+    }
+    socket.emit("makeMove", { id, data });
   };
   const handleLogout = () => {
     sessionStorage.clear();

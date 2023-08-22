@@ -38,11 +38,10 @@ const History = () => {
             message: "Game is still on going. Maybe try another one?",
           });
           return;
-        } else {
-          setGameBoard(response.data.board);
-          setHistoryMoves(response.data.moves);
-          setHistoryStatus(response.data.status);
         }
+        setGameBoard(response.data.board);
+        setHistoryMoves(response.data.moves);
+        setHistoryStatus(response.data.status);
       } catch (error) {
         console.log(error);
       }

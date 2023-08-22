@@ -15,7 +15,6 @@ import {
   OnePlayerGameButton,
   TwoUserGameButton,
 } from "../components/GameButton";
-import { Link } from "react-router-dom";
 import GameIDs from "../components/GameIDs";
 
 const Home = () => {
@@ -82,14 +81,14 @@ const Home = () => {
         sessionStorage.setItem("X", createGame.data.playerX.playerID);
         sessionStorage.setItem("O", createGame.data.playerO.playerID);
         const id = createGame.data._id;
-        navigate(`/room/${id}`);
-      } else {
-        navigate("/login");
+        return navigate(`/room/${id}`);
       }
+      navigate("/login");
     } catch (error) {
       setAlert({
         type: "error",
-        message: "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)"
+        message:
+          "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)",
       });
     }
   };
@@ -137,14 +136,14 @@ const Home = () => {
         sessionStorage.setItem("O", createGame.data.playerO.playerID);
         const id = createGame.data._id;
         setGameId(id);
-        navigate(`/room/two/${id}`);
-      } else {
-        navigate("/login");
+        return navigate(`/room/two/${id}`);
       }
+      navigate("/login");
     } catch (error) {
       setAlert({
         type: "error",
-        message: "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)"
+        message:
+          "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)",
       });
     }
   };
@@ -177,17 +176,17 @@ const Home = () => {
       );
       console.log(joinGameResponse);
       if ((joinGameResponse.data = "Player has joined the game.")) {
-        navigate(`/room/two/${gameId}`);
-      } else {
-        setAlert({
-          type: "error",
-          message: "An error occured while trying to start a game",
-        });
+        return navigate(`/room/two/${gameId}`);
       }
+      setAlert({
+        type: "error",
+        message: "An error occured while trying to start a game",
+      });
     } catch (error) {
       setAlert({
         type: "error",
-        message: "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)"
+        message:
+          "An error occured while trying to start a game. Please try login again.If you're trying to join a game, make sure that the ID is correct. :)",
       });
     }
   };
@@ -238,7 +237,13 @@ const Home = () => {
             }}
           />
           <JoinGame JoinTwoPlayerGame={JoinTwoPlayerGame} text={"Join game"} />
-          <Button onClick={handleLogout} sx={{ color: "primary.dark", "&:hover":{ color: "primary.light"} }}>
+          <Button
+            onClick={handleLogout}
+            sx={{
+              color: "primary.dark",
+              "&:hover": { color: "primary.light" },
+            }}
+          >
             Switch account
           </Button>
         </Container>

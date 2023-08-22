@@ -45,7 +45,6 @@ function Signin() {
       axios
       .post("http://localhost:3001/api/auth/signin", data)
       .then((result) => {
-        //console.log(result.headers);
         const token = result.headers["X-auth-token"];
         localStorage.setItem("UserToken", token);
         const name = result.data.name;

@@ -6,7 +6,6 @@ import Home from './pages/home';
 import Room from './pages/Room';
 import RoomTwo from './pages/RoomTwo';
 import History from './pages/History';
-import { io } from "socket.io-client";
 
 function App() {
   const[logedIn, setLogedIn] = useState(false);
